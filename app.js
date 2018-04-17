@@ -3,6 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const port = 3000;
 const uploaded_files = [];
+const fs = require('file-system');
 
 // Set Storage Engine
 
@@ -56,20 +57,29 @@ app.set('view engine', 'ejs');
 //Public Folder
 app.use(express.static('public'));
 
-app.get('/', (req, res) => res.render('index'));
+// app.get('/', (req, res) => res.render('index'));
 
-// app.post('/upload', (req, res) => {
-//     upload(req, res, (err) => {
-//         if(err) {
-//             res.render('index', {
-//                 msg: err
-//             });
-//         } else {
-//             console.log(req.file);
-//             res.send('test');
-//         }
-//     });
-// });
+app.get('/', function (req, res) {
+  const path = './public/uploads';
+  fs.readdir(path, function (err, items) {
+      console.log(items);
+      let itemsImages = "";
+      for (let i = 1; i < items.length; i++) {
+          itemsImages += ("<img src='"+ "uploads/" + items[i] + "'>")
+      }
+      res.send(`
+      <link rel="stylesheet" href="style.css">
+      <h1>Welcome to Kenziegram!</h1>
+      <form action="http://localhost:3000/upload" method="post" enctype="multipart/form-data">
+          <input type="file" id="file" name="myFile">
+          <input type="submit" id="submit" value="Upload">
+      </form>
+      <div id="images">${itemsImages}</div>`
+      );
+      // uploadMessage = "";
+  });
+})
+
 app.post('/upload', (req, res) => {
     upload(req, res, (err) => {
       if(err){
